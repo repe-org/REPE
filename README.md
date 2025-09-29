@@ -1,9 +1,5 @@
 # REPE (Remote Efficient Protocol Extension)
 
-> [!CAUTION]
->
-> This specification is under ACTIVE DEVELOPMENT and should be considered UNSTABLE.
-
 REPE is a fast and simple RPC protocol that can package any data format and any query specification. It defines a binary header which can be invoked with any query specification. The payload (body) can be any format, JSON, BEVE, raw binary, text, etc.
 
 - High performance
