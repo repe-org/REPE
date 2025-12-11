@@ -16,6 +16,8 @@ The endianness must be `little endian`, selected for optimal performance on mode
 
 Requests and responses use the exact same data layout. There is no distinction between them. The format contains a header, query, and body.
 
+Receivers distinguish requests from responses by context: servers receive requests and send responses; clients send requests and receive responses. For bidirectional protocols where both peers can initiate requests, implementations may use ID conventions (e.g., client uses odd IDs, server uses even) to disambiguate.
+
 REPE Layout: `[Header, Query, Body]`
 
 ```c++
@@ -52,7 +54,7 @@ struct header {
 };
 ```
 
-The header must be exactly 40 bytes with fields following the exact order shown above. No padding bytes are allowed.
+The header must be exactly 40 bytes with fields following the exact order shown above. No padding bytes are allowed. The header layout is naturally aligned for all fields, so packed struct representations are equivalent to standard layouts on little-endian systems.
 
 ### Length
 
@@ -63,6 +65,8 @@ The `length` must equal `40 + query_length + body_length`
 ### Spec
 
 The REPE `spec` value of `0x1507` is used to disambiguate REPE from other specifications that may use a similar layout. In this way, branching may be performed on the first 8 bytes (length + spec).
+
+If the `spec` field does not equal `0x1507`, the message is not a valid REPE message and **must** be rejected. No error response is sent, as the sender may not understand REPE.
 
 ### Version
 
@@ -76,17 +80,19 @@ While future versions may introduce backward-compatible changes, compatibility i
 
 ### Notify
 
-`notify` is either 0 or 1. A value of 1 indicates that no response is needed. Errors on `notify` requests are intentionally not reported to the client
+`notify` is either 0 or 1. A value of 1 indicates that no response is needed. Errors on `notify` requests are intentionally not reported to the client.
+
+Values other than 0 and 1 are reserved for future use. Implementations receiving unrecognized values **should** treat them as 0 (response expected).
 
 ### ID
 
 `id` must be a `uint64_t`.
 
-The `id` field may be used as a unique `uint64_t` identifier for each request. Responses must use the same `id` to allow clients to match responses to their corresponding requests, for asynchronous communication.
+The `id` field is a unique identifier for each request. Clients **should** assign unique IDs to each request. Responses **must** use the same `id` to allow clients to match responses to their corresponding requests, enabling asynchronous communication.
 
 ### Query Length
 
-`query_length` indicates the length in bytes of the query.
+`query_length` indicates the length in bytes of the query. If `query_length` is set to zero, the query section is omitted.
 
 ### Body Length
 
@@ -107,8 +113,8 @@ While the protocol supports strings of extremely long length, implementers shoul
 | Value | Format              |
 | :---- | :------------------ |
 | 0     | Raw Binary          |
-| 1     | JSON Pointer Syntax |
-| 2     | (Reserved)          |
+| 1     | [JSON Pointer](https://www.rfc-editor.org/rfc/rfc6901) (RFC 6901) |
+| 2     | (Reserved for future use) |
 | 3     | UTF-8               |
 
 ### Body Format
@@ -148,7 +154,7 @@ Below is a table of defined error codes. Values from `0` to `4095` are reserved 
 | :--- | :--------------- | :----------------------------------------------------------- |
 | 0    | OK               | No error                                                     |
 | 1    | Version mismatch | Mismatching REPE version                                     |
-| 2    | Invalid header   | The REPE header as invalid                                   |
+| 2    | Invalid header   | The REPE header was invalid                                  |
 | 3    | Invalid query    | The query was invalid                                        |
 | 4    | Invalid body     | The body was invalid.                                        |
 | 5    | Parse error      | Invalid data was received. An error occurred while parsing the data. |
@@ -163,8 +169,16 @@ Below is a table of defined error codes. Values from `0` to `4095` are reserved 
 
 When an error is generated, the endpoint must send a message back with the `id` field set to the `id` of the original request, the `ec` field set to the appropriate error code, and the body (if present) containing a UTF-8 error message.
 
+If the original request's `id` cannot be determined (e.g., the header is malformed), the error response **should** use `id = 0`.
+
 # Response
 
 An RPC response is an REPE message where the body contains the result. The `id` for the response must match the `id` from the original message.
 
 It is up to the discretion of implementors whether the response returns the original query. Data can be saved by not returning the requested query, but it may be useful for debugging errors.
+
+# Security Considerations
+
+- **Transport Security:** REPE does not provide encryption or authentication. Implementations **should** use TLS for production deployments.
+- **Size Limits:** Implementations **must** enforce maximum message sizes to prevent resource exhaustion.
+- **Input Validation:** Query and body parsers **must** validate input to prevent injection attacks.
