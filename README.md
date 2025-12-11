@@ -105,10 +105,12 @@ While the protocol supports strings of extremely long length, implementers shoul
 
 **Reserved Query Formats**
 
-```
-0 - Raw Binary
-1 - JSON Pointer Syntax
-```
+| Value | Format              |
+| :---- | :------------------ |
+| 0     | Raw Binary          |
+| 1     | JSON Pointer Syntax |
+| 2     | (Reserved)          |
+| 3     | UTF-8               |
 
 ### Body Format
 
@@ -116,13 +118,12 @@ While the protocol supports strings of extremely long length, implementers shoul
 
 **Reserved Body Formats**
 
-0 - Raw Binary
-
-1 - [BEVE](https://github.com/beve-org/beve)
-
-2 - [JSON](https://www.json.org/json-en.html)
-
-3 - UTF-8
+| Value | Format                                        |
+| :---- | :-------------------------------------------- |
+| 0     | Raw Binary                                    |
+| 1     | [BEVE](https://github.com/beve-org/beve)      |
+| 2     | [JSON](https://www.json.org/json-en.html)     |
+| 3     | UTF-8                                         |
 
 # Query
 
