@@ -37,29 +37,28 @@ struct header {
   uint64_t length{}; // Total length of [header, query, body]
   //
   uint16_t spec{0x1507}; // (5383) Magic two bytes to denote the REPE specification
-  uint8_t version = 1; // REPE version
+  uint8_t version = 2; // REPE version
   uint8_t notify{}; // 1 (true) for no response from server
-  uint32_t reserved{}; // Must be zero, receivers must ignore this field
+  uint32_t ec{}; // error code
   //
   uint64_t id{}; // Identifier
   //
-  uint64_t query_length{}; // The total length of the query
-  //
   uint64_t body_length{}; // The total length of the body
+  //
+  uint32_t query_length{}; // The total length of the query
   //
   uint16_t query_format{};
   uint16_t body_format{};
-  uint32_t ec{}; // error code
 };
 ```
 
-The header must be exactly 48 bytes with fields following the exact order shown above. No padding bytes are allowed.
+The header must be exactly 40 bytes with fields following the exact order shown above. No padding bytes are allowed.
 
 ### Length
 
 The `length` field represents the total length of `[header, query, body]`. The length must always be provided for a valid message.
 
-The `length` must equal `48 + query_length + body_length`
+The `length` must equal `40 + query_length + body_length`
 
 ### Spec
 
