@@ -36,8 +36,6 @@ The header information that describes how to handle the request and payload (que
 ```c++
 // C++ pseudocode representing layout
 struct header {
-  uint64_t length{}; // Total length of [header, query, body]
-  //
   uint16_t spec{0x1507}; // (5383) Magic two bytes to denote the REPE specification
   uint8_t version = 2; // REPE version
   uint8_t flags{}; // bit 0: notify (1 = no response); bits 1-7 reserved, must be zero
@@ -54,17 +52,15 @@ struct header {
 };
 ```
 
-The header must be exactly 40 bytes with fields following the exact order shown above. No padding bytes are allowed. The header layout is naturally aligned for all fields, so packed struct representations are equivalent to standard layouts on little-endian systems.
+The header must be exactly 32 bytes with fields following the exact order shown above. No padding bytes are allowed. The header layout is naturally aligned for all fields, so packed struct representations are equivalent to standard layouts on little-endian systems.
 
-### Length
+### Message Length
 
-The `length` field represents the total length of `[header, query, body]`. The length must always be provided for a valid message.
-
-The `length` must equal `40 + query_length + body_length`
+REPE does not include a total-length field. A message is framed by the fixed 32-byte header, followed by `query_length` bytes of query and `body_length` bytes of body. The total message length is therefore always `32 + query_length + body_length`.
 
 ### Spec
 
-The REPE `spec` value of `0x1507` is used to disambiguate REPE from other specifications that may use a similar layout. In this way, branching may be performed on the first 8 bytes (length + spec).
+The REPE `spec` value of `0x1507` is used to disambiguate REPE from other specifications that may use a similar layout. Because `spec` occupies the first two bytes of every message, a receiver can recognize a REPE message and read the `version` that immediately follows by inspecting only the first three bytes of the header.
 
 If the `spec` field does not equal `0x1507`, the message is not a valid REPE message and **must** be rejected. No error response is sent, as the sender may not understand REPE.
 
@@ -77,6 +73,8 @@ The `version` is an 8-bit unsigned integer (`uint8_t`) that specifies the versio
 Servers and clients **must** validate the version number upon receiving a message. If the version is not supported, the endpoint **must** reject the message and respond with a `Version mismatch` error (`ec = 1`). This ensures that endpoints do not attempt to parse messages using incompatible rules.
 
 While future versions may introduce backward-compatible changes, compatibility is not guaranteed. Robust implementations must always check the version and handle mismatches.
+
+Version 2 relocated the `spec` magic to the start of the header; version 1 instead began with an 8-byte `length` field. As a result, a version 2 endpoint that receives a version 1 message will observe a `spec` mismatch (the low bytes of version 1's `length` field) and reject it as a non-REPE message rather than reporting a `Version mismatch`. Endpoints that must interoperate with version 1 should detect this case explicitly.
 
 ### Flags
 
