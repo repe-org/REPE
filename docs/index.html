@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REPE — Remote Efficient Protocol Extension</title>
+  <meta name="description" content="REPE is a fast, simple binary RPC protocol with a fixed 32-byte header that can package any data format and any query specification." />
+  <meta name="theme-color" content="#0a0e1a" />
+
+  <!-- Open Graph / social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="REPE — Remote Efficient Protocol Extension" />
+  <meta property="og:description" content="A fast, simple binary RPC protocol that wraps any format and any query behind a fixed 32-byte header." />
+  <meta property="og:url" content="https://repe-org.github.io/REPE/" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ───────────────────────── Nav ───────────────────────── -->
+  <header class="nav" id="top">
+    <div class="nav__inner">
+      <a class="brand" href="#top" aria-label="REPE home">
+        <svg class="brand__mark" width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="1" y="1" width="30" height="30" rx="7" fill="url(#brandGrad)" opacity="0.14" />
+          <rect x="1.5" y="1.5" width="29" height="29" rx="6.5" fill="none" stroke="url(#brandGrad)" stroke-width="1.5" />
+          <path d="M9 22V10h6a3.5 3.5 0 0 1 0 7H11l5 5" fill="none" stroke="url(#brandGrad)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+          <defs>
+            <linearGradient id="brandGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#22d3ee" />
+              <stop offset="1" stop-color="#a78bfa" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="brand__name">REPE</span>
+      </a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#why">Why</a>
+        <a href="#header">Header</a>
+        <a href="#message">Message</a>
+        <a href="#formats">Formats</a>
+        <a href="#errors">Errors</a>
+        <a href="#implementations">Libraries</a>
+        <a class="nav__cta" href="https://github.com/repe-org/REPE" target="_blank" rel="noopener">
+          GitHub
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        </a>
+      </nav>
+
+      <button class="nav__toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ───────────────────────── Hero ───────────────────────── -->
+    <section class="hero">
+      <div class="hero__bg" aria-hidden="true"></div>
+      <div class="hero__inner">
+        <div class="hero__copy">
+          <span class="eyebrow">Binary RPC Protocol · v2</span>
+          <h1 class="hero__title">
+            <span class="hero__title-main">REPE</span>
+            <span class="hero__title-sub">Remote Efficient Protocol Extension</span>
+          </h1>
+          <p class="hero__lede">
+            A fast and simple RPC protocol that can package <strong>any data format</strong>
+            and <strong>any query specification</strong> behind a fixed
+            <strong>32-byte</strong> binary header.
+          </p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#header">Explore the Header</a>
+            <a class="btn btn--ghost" href="https://github.com/repe-org/REPE" target="_blank" rel="noopener">View the Spec</a>
+          </div>
+          <ul class="hero__pills">
+            <li>High performance</li>
+            <li>Easy to use</li>
+            <li>Easy to parse</li>
+          </ul>
+        </div>
+
+        <!-- Header definition card with C++ / Rust toggle -->
+        <div class="hero__visual">
+          <div class="codecard">
+            <div class="codecard__bar">
+              <div class="codecard__tabs" role="group" aria-label="Show the REPE header as C++ or Rust">
+                <button class="codetab" type="button" data-lang="cpp" aria-pressed="true">C++</button>
+                <button class="codetab" type="button" data-lang="rust" aria-pressed="false">Rust</button>
+              </div>
+            </div>
+            <pre class="codecard__code" data-lang="cpp"><code><span class="c-key">struct</span> <span class="c-type">header</span> {
+  <span class="c-type">uint16_t</span> spec{<span class="c-num">0x1507</span>};  <span class="c-cmt">// REPE magic</span>
+  <span class="c-type">uint8_t</span>  version{<span class="c-num">2</span>};      <span class="c-cmt">// protocol version</span>
+  <span class="c-type">uint8_t</span>  flags{};         <span class="c-cmt">// bit 0: notify</span>
+  <span class="c-type">uint32_t</span> ec{};            <span class="c-cmt">// error code</span>
+  <span class="c-type">uint64_t</span> id{};            <span class="c-cmt">// request id</span>
+  <span class="c-type">uint64_t</span> body_length{};   <span class="c-cmt">// body bytes</span>
+  <span class="c-type">uint32_t</span> query_length{};  <span class="c-cmt">// query bytes</span>
+  <span class="c-type">uint16_t</span> query_format{};
+  <span class="c-type">uint16_t</span> body_format{};
+};  <span class="c-cmt">// exactly 32 bytes</span></code></pre>
+            <pre class="codecard__code" data-lang="rust" hidden><code><span class="c-key">struct</span> <span class="c-type">Header</span> {
+    spec: <span class="c-type">u16</span>,          <span class="c-cmt">// REPE magic (0x1507)</span>
+    version: <span class="c-type">u8</span>,        <span class="c-cmt">// protocol version (2)</span>
+    flags: <span class="c-type">u8</span>,          <span class="c-cmt">// bit 0: notify</span>
+    ec: <span class="c-type">u32</span>,            <span class="c-cmt">// error code</span>
+    id: <span class="c-type">u64</span>,            <span class="c-cmt">// request id</span>
+    body_length: <span class="c-type">u64</span>,   <span class="c-cmt">// body bytes</span>
+    query_length: <span class="c-type">u32</span>,  <span class="c-cmt">// query bytes</span>
+    query_format: <span class="c-type">u16</span>,
+    body_format: <span class="c-type">u16</span>,
+}  <span class="c-cmt">// exactly 32 bytes</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── Why ───────────────────────── -->
+    <section class="section" id="why">
+      <div class="section__head">
+        <span class="kicker">Why REPE</span>
+        <h2>One header. Any payload. Any query.</h2>
+        <p class="section__sub">
+          REPE defines a compact binary header and gets out of your way. The body can be JSON,
+          BEVE, raw binary, or text — and the query can use whatever specification fits your system.
+        </p>
+      </div>
+
+      <div class="grid grid--3">
+        <article class="card">
+          <div class="card__icon">⚡</div>
+          <h3>High performance</h3>
+          <p>A fixed, naturally-aligned 32-byte header with no padding. Little-endian by design for optimal throughput on modern hardware.</p>
+        </article>
+        <article class="card">
+          <div class="card__icon">🧩</div>
+          <h3>Format agnostic</h3>
+          <p>The body carries any format you like. Tag it with a <code>body_format</code> code — JSON, BEVE, UTF-8, or raw binary — and parse accordingly.</p>
+        </article>
+        <article class="card">
+          <div class="card__icon">🔎</div>
+          <h3>Query agnostic</h3>
+          <p>Address data however you want. Use JSON Pointer, raw binary, UTF-8, or a custom query specification of your own.</p>
+        </article>
+        <article class="card">
+          <div class="card__icon">↔️</div>
+          <h3>Symmetric messages</h3>
+          <p>Requests and responses share the exact same layout. Receivers distinguish them by context — no separate framing to learn.</p>
+        </article>
+        <article class="card">
+          <div class="card__icon">🪶</div>
+          <h3>Trivial framing</h3>
+          <p>No total-length field needed. Read 32 bytes, then <code>query_length</code> + <code>body_length</code> bytes. That's the whole message.</p>
+        </article>
+        <article class="card">
+          <div class="card__icon">🔀</div>
+          <h3>Async by design</h3>
+          <p>Every message carries a 64-bit <code>id</code>, so responses match their requests and many calls can stay in flight on one connection. Flip the notify flag for one-way, fire-and-forget sends.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── Header ───────────────────────── -->
+    <section class="section section--alt" id="header">
+      <div class="section__head">
+        <span class="kicker">The Header</span>
+        <h2>32 bytes</h2>
+        <p class="section__sub">
+          Every field has a fixed offset and size. Hover or tap a field to highlight it in the byte map.
+          Recognize REPE from just the first three bytes: the <code>spec</code> magic followed by the <code>version</code>.
+        </p>
+      </div>
+
+      <div class="header-explorer">
+        <!-- Byte map -->
+        <div class="bytemap" role="list" aria-label="Header byte map">
+          <!-- filled in by script.js -->
+        </div>
+
+        <!-- Field table -->
+        <div class="fieldtable">
+          <table>
+            <thead>
+              <tr><th>Field</th><th>Type</th><th>Offset</th><th>Bytes</th></tr>
+            </thead>
+            <tbody id="field-rows">
+              <!-- filled in by script.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── Message layout ───────────────────────── -->
+    <section class="section" id="message">
+      <div class="section__head">
+        <span class="kicker">Message Layout</span>
+        <h2>Header · Query · Body</h2>
+        <p class="section__sub">
+          A REPE message is three contiguous parts. The query and body are optional —
+          set their length to zero to omit them entirely.
+        </p>
+      </div>
+
+      <div class="layout">
+        <div class="layout__seg layout__seg--header">
+          <span class="layout__label">Header</span>
+          <span class="layout__size">32 bytes · fixed</span>
+        </div>
+        <div class="layout__seg layout__seg--query">
+          <span class="layout__label">Query</span>
+          <span class="layout__size"><code>query_length</code> bytes</span>
+        </div>
+        <div class="layout__seg layout__seg--body">
+          <span class="layout__label">Body</span>
+          <span class="layout__size"><code>body_length</code> bytes</span>
+        </div>
+      </div>
+      <p class="layout__formula">
+        total length = <span class="hl">32</span> + <span class="hl">query_length</span> + <span class="hl">body_length</span>
+      </p>
+    </section>
+
+    <!-- ───────────────────────── Formats ───────────────────────── -->
+    <section class="section section--alt" id="formats">
+      <div class="section__head">
+        <span class="kicker">Formats</span>
+        <h2>Reserved format codes</h2>
+        <p class="section__sub">
+          Values <code>0–4095</code> are reserved for the REPE specification.
+          Custom formats should use values above <code>4095</code>.
+        </p>
+      </div>
+
+      <div class="grid grid--2">
+        <div class="panel">
+          <h3 class="panel__title"><code>query_format</code></h3>
+          <table class="ftable">
+            <thead><tr><th>Value</th><th>Format</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge">0</span></td><td>Raw Binary</td></tr>
+              <tr><td><span class="badge">1</span></td><td><a href="https://www.rfc-editor.org/rfc/rfc6901" target="_blank" rel="noopener">JSON Pointer</a> (RFC 6901)</td></tr>
+              <tr><td><span class="badge">2</span></td><td class="muted">Reserved for future use</td></tr>
+              <tr><td><span class="badge">3</span></td><td>UTF-8</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel__title"><code>body_format</code></h3>
+          <table class="ftable">
+            <thead><tr><th>Value</th><th>Format</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge">0</span></td><td>Raw Binary</td></tr>
+              <tr><td><span class="badge">1</span></td><td><a href="https://github.com/beve-org/beve" target="_blank" rel="noopener">BEVE</a></td></tr>
+              <tr><td><span class="badge">2</span></td><td><a href="https://www.json.org/json-en.html" target="_blank" rel="noopener">JSON</a></td></tr>
+              <tr><td><span class="badge">3</span></td><td>UTF-8</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── Errors ───────────────────────── -->
+    <section class="section" id="errors">
+      <div class="section__head">
+        <span class="kicker">Error Codes</span>
+        <h2>A defined error vocabulary</h2>
+        <p class="section__sub">
+          The error code lives in the header's <code>ec</code> field; an optional UTF-8 message lives in the body.
+          Codes <code>0–4095</code> are reserved for REPE; applications use <code>4096</code> and above.
+        </p>
+      </div>
+
+      <div class="panel">
+        <table class="etable">
+          <thead><tr><th>Code</th><th>Message</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge--ok">0</span></td><td>OK</td><td>No error</td></tr>
+            <tr><td><span class="badge badge--err">1</span></td><td>Version mismatch</td><td>Mismatching REPE version</td></tr>
+            <tr><td><span class="badge badge--err">2</span></td><td>Invalid header</td><td>The REPE header was invalid</td></tr>
+            <tr><td><span class="badge badge--err">3</span></td><td>Invalid query</td><td>The query was invalid</td></tr>
+            <tr><td><span class="badge badge--err">4</span></td><td>Invalid body</td><td>The body was invalid</td></tr>
+            <tr><td><span class="badge badge--err">5</span></td><td>Parse error</td><td>An error occurred while parsing the data</td></tr>
+            <tr><td><span class="badge badge--err">6</span></td><td>Method not found</td><td>The method does not exist or is not available</td></tr>
+            <tr><td><span class="badge badge--err">7</span></td><td>Timeout</td><td>Timeout</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── Implementations ───────────────────────── -->
+    <section class="section section--alt" id="implementations">
+      <div class="section__head">
+        <span class="kicker">Implementations</span>
+        <h2>Use REPE from your language</h2>
+        <p class="section__sub">
+          Production libraries already speak REPE. Both currently target the
+          <strong>v1</strong> wire format and are updating to <strong>v2</strong> — the layout
+          documented across this site.
+        </p>
+      </div>
+
+      <div class="grid grid--2 impl-grid">
+        <!-- C++ / Glaze -->
+        <article class="impl-card">
+          <div class="impl-card__top impl-card__top--cpp"></div>
+          <div class="impl-card__head">
+            <span class="impl-card__lang impl-card__lang--cpp">C++</span>
+            <div>
+              <h3>Glaze</h3>
+              <a class="impl-card__repo" href="https://github.com/stephenberry/glaze" target="_blank" rel="noopener">stephenberry/glaze ↗</a>
+            </div>
+          </div>
+          <p class="impl-card__desc">
+            REPE ships inside Glaze, a high-performance C++ JSON/BEVE library. Bodies serialize
+            straight from your structs — no hand-written glue.
+          </p>
+          <ul class="impl-features">
+            <li>JSON &amp; BEVE bodies, reflected directly from C++ types</li>
+            <li>Registry to expose functions and objects as endpoints</li>
+            <li>JSON Pointer queries into registered state</li>
+            <li>Built-in REPE ⇄ JSON-RPC conversion</li>
+            <li>Header-only, with asio networking examples</li>
+          </ul>
+          <div class="snippet">
+            <code>#include &lt;glaze/rpc/repe/repe.hpp&gt;</code>
+            <button class="copy" type="button" data-copy="#include &lt;glaze/rpc/repe/repe.hpp&gt;" aria-label="Copy include">⧉</button>
+          </div>
+          <div class="impl-card__foot">
+            <span class="status">REPE v1 today · v2 in progress</span>
+            <span class="impl-card__links">
+              <a href="https://github.com/stephenberry/glaze/blob/main/docs/rpc/repe-rpc.md" target="_blank" rel="noopener">Docs</a>
+            </span>
+          </div>
+        </article>
+
+        <!-- Rust / repe-rs -->
+        <article class="impl-card">
+          <div class="impl-card__top impl-card__top--rust"></div>
+          <div class="impl-card__head">
+            <span class="impl-card__lang impl-card__lang--rust">Rust</span>
+            <div>
+              <h3>repe-rs</h3>
+              <a class="impl-card__repo" href="https://github.com/repe-org/repe-rs" target="_blank" rel="noopener">repe-org/repe-rs ↗</a>
+            </div>
+          </div>
+          <p class="impl-card__desc">
+            The <code>repe</code> crate: a full async-capable REPE stack with clients, servers,
+            routing, and multiple transports.
+          </p>
+          <ul class="impl-features">
+            <li>Sync &amp; async (tokio) clients and servers</li>
+            <li>JSON (serde) &amp; BEVE bodies, zero-copy message views</li>
+            <li>Multiplexed requests, timeouts, batching, notify</li>
+            <li>Dynamic Registry routing with JSON Pointer</li>
+            <li>Fleet multi-node TCP/UDP fanout</li>
+            <li>WebSocket transport (native + wasm browser client)</li>
+            <li>Backpressure streaming with reconnect-resume · <code>repe</code> CLI</li>
+          </ul>
+          <div class="snippet">
+            <code>cargo add repe</code>
+            <button class="copy" type="button" data-copy="cargo add repe" aria-label="Copy command">⧉</button>
+          </div>
+          <div class="impl-card__foot">
+            <span class="status">REPE v1 today · v2 in progress</span>
+            <span class="impl-card__links">
+              <a href="https://crates.io/crates/repe" target="_blank" rel="noopener">crates.io</a>
+              <a href="https://repe-org.github.io/repe-rs/" target="_blank" rel="noopener">Docs</a>
+            </span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── CTA ───────────────────────── -->
+    <section class="cta">
+      <div class="cta__inner">
+        <h2>Build on REPE</h2>
+        <p>Read the full specification, open an issue, or start implementing. The spec is short by design.</p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="https://github.com/repe-org/REPE#readme" target="_blank" rel="noopener">Read the Specification</a>
+          <a class="btn btn--ghost" href="https://github.com/repe-org/REPE" target="_blank" rel="noopener">Star on GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ───────────────────────── Footer ───────────────────────── -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <span class="brand__name">REPE</span>
+        <p>Remote Efficient Protocol Extension — a fast, simple binary RPC protocol.</p>
+      </div>
+      <div class="footer__cols">
+        <div class="footer__col">
+          <h4>Protocol</h4>
+          <a href="#header">Header</a>
+          <a href="#message">Message layout</a>
+          <a href="#formats">Formats</a>
+          <a href="#errors">Error codes</a>
+        </div>
+        <div class="footer__col">
+          <h4>Project</h4>
+          <a href="https://github.com/repe-org/REPE" target="_blank" rel="noopener">Repository</a>
+          <a href="https://github.com/repe-org/REPE#readme" target="_blank" rel="noopener">Specification</a>
+          <a href="https://github.com/repe-org/REPE/issues" target="_blank" rel="noopener">Issues</a>
+        </div>
+        <div class="footer__col">
+          <h4>Implementations</h4>
+          <a href="https://github.com/stephenberry/glaze" target="_blank" rel="noopener">Glaze (C++)</a>
+          <a href="https://github.com/repe-org/repe-rs" target="_blank" rel="noopener">repe-rs (Rust)</a>
+          <a href="https://github.com/beve-org/beve" target="_blank" rel="noopener">BEVE format</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bar">
+      <span>MIT Licensed · © 2023–2026 Stephen Berry</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
