@@ -40,7 +40,7 @@ struct header {
   //
   uint16_t spec{0x1507}; // (5383) Magic two bytes to denote the REPE specification
   uint8_t version = 2; // REPE version
-  uint8_t notify{}; // 1 (true) for no response from server
+  uint8_t flags{}; // bit 0: notify (1 = no response); bits 1-7 reserved, must be zero
   uint32_t ec{}; // error code
   //
   uint64_t id{}; // Identifier
@@ -78,11 +78,11 @@ Servers and clients **must** validate the version number upon receiving a messag
 
 While future versions may introduce backward-compatible changes, compatibility is not guaranteed. Robust implementations must always check the version and handle mismatches.
 
-### Notify
+### Flags
 
-`notify` is either 0 or 1. A value of 1 indicates that no response is needed. Errors on `notify` requests are intentionally not reported to the client.
+`flags` is an 8-bit field carrying boolean message attributes. The notify attribute is bit 0 and is evaluated as `flags & 0x01`. When bit 0 is set, no response is needed, and errors on the request are intentionally not reported to the client.
 
-Values other than 0 and 1 are reserved for future use. Implementations receiving unrecognized values **should** treat them as 0 (response expected).
+Bits 1 through 7 are reserved for future use and **must** be zero. Receivers **must** reject any message with a reserved bit set, responding with an `Invalid header` error (`ec = 2`).
 
 ### ID
 
