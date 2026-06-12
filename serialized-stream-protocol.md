@@ -1,7 +1,7 @@
 # REPE Serialized Value Stream (SVS) — shared wire contract
 
-- Status: **DRAFT v0 — provisional.** Concrete byte encodings below are the build target for implementers, but are **not frozen**: a reference implementation validates them first, after which this freezes as **v1** and further implementations target the frozen contract. Do not treat v0 as stable.
-- Location: this is the canonical copy, in the **REPE org repository** next to the base REPE spec. It stays DRAFT v0 here until a reference implementation validates it, then freezes as v1 in place (see Status above).
+- Status: **v1 — frozen for interop (working draft).** The concrete byte encodings in §1–§3 are **frozen** as the stable target every implementation builds to. The document is still maintained as a working draft — clarifications may be folded in — but the v1 wire does not change beneath conforming peers; an incompatible change would be a new version (§5).
+- Location: this is the canonical copy, in the **REPE org repository** next to the base REPE spec. It is **frozen as v1** in place (see Status above).
 - Purpose: one wire definition so that independently developed REPE services — in any language — can exchange these streams. Each implementation carries its own companion plan describing its local engine; this document is the only thing that must match between them.
 
 ## 0. What this pins, and what it does not
@@ -67,13 +67,13 @@ A producer with 1 MiB chunks and a shallow buffer interoperates with a client th
 
 ## 5. Versioning and negotiation
 
-`version` in the `open` response is the contract version (`1`). v0 has no negotiation beyond the client checking the returned `version`; if a client does not support the returned `version` it `cancel`s. A future revision MAY let the client advertise accepted versions in the `open` request. Keep this minimal until a second version actually exists.
+`version` in the `open` response is the contract version (`1`). v1 has no negotiation beyond the client checking the returned `version`; if a client does not support the returned `version` it `cancel`s. A future revision MAY let the client advertise accepted versions in the `open` request. Keep this minimal until a second version actually exists.
 
 ## 6. Conformance
 
-While v0 is provisional, conformance is "two independent implementations agree on §1–§3 byte-for-byte," validated by a cross-implementation round-trip test: a client built on one implementation pulls a stream from a server built on another and reconstructs the identical byte stream, once two exist.
+Conformance is "two independent implementations agree on §1–§3 byte-for-byte," validated by a cross-implementation round-trip test: a client built on one implementation pulls a stream from a server built on another and reconstructs the identical byte stream, once two exist.
 
-When the contract freezes as v1, add a **shared fixture suite** in the canonical org repo: canonical `open` / `next` / `cancel` frames (header + query + body bytes) every implementation must reproduce and decode byte-identically, plus a recorded pull transcript all implementations drive to an identical reconstructed byte stream. Defer the fixtures until freeze; do not build them against a moving v0.
+Now that the contract is frozen as v1, the next step is a **shared fixture suite** in the canonical org repo: canonical `open` / `next` / `cancel` frames (header + query + body bytes) every implementation must reproduce and decode byte-identically, plus a recorded pull transcript all implementations drive to an identical reconstructed byte stream. (These were deferred while v0 was provisional, to avoid building fixtures against a moving target.)
 
 ## 7. Scope and non-goals
 
